@@ -25,20 +25,14 @@ def home_view(request):
 
 
 def time_view(request):
-    # обратите внимание – здесь HTML шаблона нет, 
-    # возвращается просто текст
-    current_time = datetime.datetime.now()
-    msg = f'Текущее время: {current_time}'
-    return HttpResponse(msg)
+    current_time = datetime.datetime.now().strftime('%H:%M:%S %d-%m-%Y')
+    return HttpResponse(f'<strong>Текущее время:</strong> {current_time}')
 
-
-def workdir_view(request):
-    # по аналогии с `time_view`, напишите код,
-    # который возвращает список файлов в рабочей 
-    # директории
-    # raise NotImplemented
-    dir_list = os.listdir()
-    dir_list = '; '.join(dir_list)
-    dl = f'Список файлов в рабочей директории: {dir_list}'
-    return HttpResponse(dl)
     
+def workdir_view(request):
+    try:
+        dir_list = '<br>'.join(os.listdir(os.getcwd()))
+    except Exception as e:
+        return HttpResponse(f'Ошибка при получении списка файлов: {str(e)}')
+
+    return HttpResponse(f'<strong>Список файлов в рабочей директории:</strong><br>{dir_list}')
