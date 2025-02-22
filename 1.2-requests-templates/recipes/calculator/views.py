@@ -9,7 +9,7 @@ DATA = {
         'соль, ч.л.': 0.5,
     },
     'pasta': {
-        'макароны, г': 0.3,
+        'макароны, кг': 0.3,
         'сыр, г': 0.05,
     },
     'buter': {
@@ -30,35 +30,32 @@ DATA = {
 # По умолчанию n = 1.
 # Источник данных для рецептов словарь DATA.
 def select_recipe(request, recipe_name=None):
-  recipe = DATA.get(recipe_name) if recipe_name else None
-  servings = 1
-  if recipe:
-    servings_str = request.GET.get('servings', None)
-    
-    if servings_str and servings_str.isdigit():
-      servings = int(servings_str)
-      adjusted_recipe = {ingredient: amount * servings for ingredient, amount in recipe.items()}
+    recipe = DATA.get(recipe_name)
+    servings = 1
+
+    if recipe:
+        servings_str = request.GET.get('servings')
+        if servings_str and servings_str.isdigit():
+            servings = int(servings_str)
+            adjusted_recipe = {ingredient: amount * servings for ingredient, amount in recipe.items()}
+        else:
+            adjusted_recipe = recipe
     else:
-      adjusted_recipe = recipe
-  else:
-    adjusted_recipe = None
+        adjusted_recipe = None
 
-  title_recipe = 'РЕЦЕПТ БЛЮДА:'
-  title_persons = 'Число персон:'
-  
-  context = {
-    'pages': {
-      'Рецепты': reverse('index')
-    },
-    'recipe': adjusted_recipe,
-    'unknown_recipe': recipe_name,
-    'new_title': title_recipe,
-    'dish': recipe_name,
-    'new_persons': title_persons,
-    'persons': servings
-  }
+    context = {
+        'pages': {
+            'Рецепты': reverse('index')
+        },
+        'recipe': adjusted_recipe,
+        'unknown_recipe': recipe_name if recipe is None else None,  # Передаём имя, если рецепт не найден
+        'new_title': 'РЕЦЕПТ БЛЮДА:',
+        'dish': recipe_name,
+        'new_persons': 'Число персон:',
+        'persons': servings
+    }
 
-  return render(request, 'calculator/index.html', context)
+    return render(request, 'calculator/index.html', context)
 
 
 # Обработчик с инструкцией по поиску рецептов для стартовой страницы.
